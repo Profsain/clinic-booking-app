@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:4000
+@apiKey = replace-me
+
+### Health
+GET {{baseUrl}}/health
+
+### Reset slots
+POST {{baseUrl}}/reset
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "slots": [
+    {
+      "id": "s1",
+      "provider": "Dr Ada",
+      "start": "2027-01-12T09:00:00.000Z",
+      "end": "2027-01-12T09:30:00.000Z"
+    },
+    {
+      "id": "s2",
+      "provider": "Dr Ben",
+      "start": "2027-01-12T10:00:00.000Z",
+      "end": "2027-01-12T10:30:00.000Z"
+    }
+  ]
+}
+
+### List slots
+GET {{baseUrl}}/slots
+X-API-Key: {{apiKey}}
+
+### Book
+POST {{baseUrl}}/bookings
+X-API-Key: {{apiKey}}
+Idempotency-Key: demo-booking-001
+Content-Type: application/json
+
+{
+  "slot_id": "s1",
+  "name": "Ada Obi",
+  "email": "ada@example.com"
+}
+
+### Booking history
+GET {{baseUrl}}/bookings?email=ada@example.com&limit=10
+X-API-Key: {{apiKey}}
