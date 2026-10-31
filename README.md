@@ -70,3 +70,13 @@ npm run dev
 Enter the same `API_KEY` in the frontend's Connect panel. The browser does not receive the key until a user enters it.
 
 For production, set the backend's `CORS_ORIGIN` to the deployed frontend origin. Multiple origins can be comma-separated; trailing slashes are ignored.
+
+## 4. Deploy the backend to Vercel
+
+The backend includes a Vercel function entrypoint and rewrites API paths such as `/slots` to it. Set the Vercel project root directory to `backend`, then configure these project environment variables:
+
+- `MONGODB_URI`: your MongoDB connection string
+- `API_KEY`: the API key entered in the frontend
+- `CORS_ORIGIN`: `https://clinic-booking-app-b23l.vercel.app` (replace this with your deployed frontend origin)
+
+Set `VITE_API_BASE_URL` in the frontend's Vercel project to the backend deployment URL, then redeploy both projects after changing environment variables.

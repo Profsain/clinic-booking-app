@@ -57,7 +57,13 @@ test('requires API key and lists slots with availability', async () => {
 test('allows preflight requests for configured origins with trailing slashes', async () => {
   const originalCorsOrigin = config.corsOrigin;
   config.corsOrigin = 'https://clinic-booking-app-b23l.vercel.app/';
-  const corsApp = createApp();
+  let beforeRoutesCalls = 0;
+  const corsApp = createApp({
+    beforeRoutes: (_req, _res, next) => {
+      beforeRoutesCalls += 1;
+      next();
+    }
+  });
   config.corsOrigin = originalCorsOrigin;
 
   const response = await request(corsApp)
@@ -69,6 +75,7 @@ test('allows preflight requests for configured origins with trailing slashes', a
   assert.equal(response.status, 204);
   assert.equal(response.headers['access-control-allow-origin'], 'https://clinic-booking-app-b23l.vercel.app');
   assert.match(response.headers['access-control-allow-headers'], /X-API-Key/i);
+  assert.equal(beforeRoutesCalls, 0);
 });
 
 test('books a slot, returns confirmation and supports booking lookup', async () => {
