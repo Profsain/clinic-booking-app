@@ -5,6 +5,7 @@ import {
 } from './services/bookingService.js';
 import { HttpError } from './utils/errors.js';
 
+// Define api routers 
 export const router = express.Router();
 
 router.use(requireApiKey);

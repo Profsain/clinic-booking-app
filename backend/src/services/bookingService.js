@@ -7,6 +7,7 @@ import { HttpError } from '../utils/errors.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// This function normalizes the booking request body by trimming whitespace from string fields and converting the email to lowercase. It ensures that the slot_id, name, and email fields are present and properly formatted for further processing.
 export function normalizeBookingBody(body = {}) {
   return {
     slot_id: typeof body.slot_id === 'string' ? body.slot_id.trim() : '',
@@ -15,12 +16,14 @@ export function normalizeBookingBody(body = {}) {
   };
 }
 
+// This function validates the booking data by checking for the presence of required fields and ensuring that the email address is in a valid format. If any validation fails, it throws an HttpError with a 400 status code and an appropriate error message.
 function validateBooking(data) {
   if (!data.slot_id || !data.name || !data.email || !EMAIL_RE.test(data.email)) {
     throw new HttpError(400, 'missing or invalid booking details');
   }
 }
 
+// This function converts a Booking document into a response object suitable for returning to the client. It includes the booking ID, slot ID, name, email, status, and creation timestamp in ISO format.
 function toBookingResponse(booking) {
   return {
     id: String(booking._id),
@@ -32,10 +35,12 @@ function toBookingResponse(booking) {
   };
 }
 
+// This function generates a SHA-256 hash of the provided data. It is used to create a unique identifier for the request body, which helps in implementing idempotency by ensuring that identical requests can be recognized and handled appropriately.
 function hashBody(data) {
   return crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
 }
 
+// This function implements rate limiting by tracking the number of booking attempts made by a specific email or IP address within a one-minute window. It uses a combination of the email or IP and the current time to create a unique bucket identifier. If the number of attempts exceeds the allowed limit (5 in this case), it throws an HttpError with a 429 status code and includes a Retry-After header indicating when the client can retry.
 async function consumeRateLimit(email, ip) {
   const now = new Date();
   const windowStart = Math.floor(now.getTime() / 60000) * 60000;
@@ -55,6 +60,7 @@ async function consumeRateLimit(email, ip) {
   }
 }
 
+// This function handles idempotency for booking requests.
 async function replayOrClaimIdempotency(key, requestHash) {
   if (!key) return { mode: 'none' };
   if (key.length > 200) throw new HttpError(400, 'invalid Idempotency-Key');
@@ -90,6 +96,7 @@ async function replayOrClaimIdempotency(key, requestHash) {
   throw new HttpError(409, 'request with this Idempotency-Key is still processing');
 }
 
+// create a new booking service
 export async function createBooking(body, idempotencyKey, ip) {
   const data = normalizeBookingBody(body);
   const requestHash = hashBody(data);
@@ -144,6 +151,7 @@ export async function createBooking(body, idempotencyKey, ip) {
   }
 }
 
+// Retrieve a list of slots, optionally filtered by provider, and indicate their availability based on confirmed bookings.
 export async function listSlots(provider) {
   const query = provider ? { provider } : {};
   const slots = await Slot.find(query).sort({ start: 1, id: 1 }).lean();
@@ -160,6 +168,7 @@ export async function listSlots(provider) {
   };
 }
 
+// Retrieve a specific booking by its ID, including the associated slot details if available. If the booking or slot is not found, appropriate errors are thrown.
 export async function getBooking(id) {
   const booking = await Booking.findById(id);
   if (!booking) throw new HttpError(404, 'booking not found');
@@ -174,6 +183,7 @@ export async function getBooking(id) {
   };
 }
 
+// Cancel a booking by its ID.
 export async function cancelBooking(id) {
   const booking = await Booking.findById(id);
   if (!booking) throw new HttpError(404, 'booking not found');
@@ -184,6 +194,7 @@ export async function cancelBooking(id) {
   return toBookingResponse(booking);
 }
 
+// Encode a cursor for pagination based on the booking's creation timestamp and ID. The cursor is a base64url-encoded JSON string containing the created_at timestamp and the booking's ID.
 function encodeCursor(booking) {
   return Buffer.from(JSON.stringify({
     created_at: booking.created_at.toISOString(),
@@ -191,6 +202,7 @@ function encodeCursor(booking) {
   })).toString('base64url');
 }
 
+// Decode a cursor for pagination, validating its structure and ensuring it contains a valid created_at timestamp and ID. If the cursor is invalid, an HttpError with a 400 status code is thrown.
 function decodeCursor(cursor) {
   try {
     const value = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
@@ -201,6 +213,7 @@ function decodeCursor(cursor) {
   }
 }
 
+// List bookings for a specific email address, supporting pagination with a limit and cursor.
 export async function listBookings(email, limitValue, cursorValue) {
   if (typeof email !== 'string' || !EMAIL_RE.test(email.trim())) {
     throw new HttpError(400, 'valid email is required');
@@ -228,6 +241,7 @@ export async function listBookings(email, limitValue, cursorValue) {
   };
 }
 
+// Reset the database by clearing all bookings, idempotency keys, rate limits, and slots, and optionally inserting new slots. 
 export async function resetData(slotsInput) {
   if (!Array.isArray(slotsInput)) throw new HttpError(400, 'slots must be an array');
   const normalized = [];

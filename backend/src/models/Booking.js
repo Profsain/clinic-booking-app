@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// This schema defines the structure for storing booking information in the database. It includes fields for the slot ID, name, email, status (confirmed or cancelled), and a timestamp for when the booking was created. The schema also includes indexes to enforce uniqueness of confirmed bookings for a given slot and to facilitate efficient querying by email and creation date.
 const bookingSchema = new mongoose.Schema({
   slot_id: { type: String, required: true },
   name: { type: String, required: true, trim: true },

@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// This configuration object holds various settings for the application, including the port number, MongoDB URI, API key, CORS origin, and the Node.js environment. These values are sourced from environment variables or default values if not provided.
 export const config = {
   port: Number(process.env.PORT || 4000),
   mongoUri: process.env.MONGODB_URI,

@@ -4,7 +4,7 @@ import { createApp } from '../src/app.js';
 import { Booking } from '../src/models/Booking.js';
 
 let databaseReady;
-
+// This middleware ensures that the database is initialized before handling any requests. It checks for the required environment variables, connects to the MongoDB database if not already connected, and initializes the Booking model. If any errors occur during this process, they are passed to the next middleware for handling.
 async function initializeDatabase(_req, _res, next) {
   if (!config.mongoUri) return next(new Error('MONGODB_URI is required'));
   if (!config.apiKey) return next(new Error('API_KEY is required'));

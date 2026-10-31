@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// This schema defines the structure for storing idempotency keys in the database. It includes fields for the key itself, a hash of the request, the state of the request (processing or complete), the response status and body, and a timestamp for when the entry was created. The schema also includes an index on the created_at field to automatically expire entries after 24 hours, ensuring that old idempotency keys are cleaned up from the database.
 const idempotencySchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
   request_hash: { type: String, required: true },

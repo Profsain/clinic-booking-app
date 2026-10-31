@@ -5,6 +5,7 @@ import { config } from './config.js';
 import { router } from './routes.js';
 import { errorHandler } from './utils/errors.js';
 
+// This function creates and configures an Express application. It sets up security headers, CORS policies, JSON body parsing, and health check routes. It also allows for optional middleware to be executed before the main routes are registered. Finally, it includes error handling and a catch-all route for 404 Not Found responses.
 export function createApp({ beforeRoutes } = {}) {
   const app = express();
   app.disable('x-powered-by');
