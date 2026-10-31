@@ -11,7 +11,7 @@ export function createApp() {
   app.set('trust proxy', 1);
   app.use(helmet());
   app.use(cors({
-    origin: config.corsOrigin === '*' ? '*' : config.corsOrigin.split(',').map(v => v.trim()),
+    origin: config.corsOrigin === '*' ? '*' : config.corsOrigin.split(',').map(v => v.trim().replace(/\/+$/, '')),
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-API-Key', 'Idempotency-Key']
   }));

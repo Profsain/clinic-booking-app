@@ -68,3 +68,5 @@ npm run dev
 - Health check: http://localhost:4000/health
 
 Enter the same `API_KEY` in the frontend's Connect panel. The browser does not receive the key until a user enters it.
+
+For production, set the backend's `CORS_ORIGIN` to the deployed frontend origin. Multiple origins can be comma-separated; trailing slashes are ignored.
